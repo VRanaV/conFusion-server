@@ -24,9 +24,7 @@ const Promos= require('./models/promotions');
 const Leaders= require('./models/leaders');
 const User=require('./models/user');
 const url =config.mongoUrl;
-const connect = mongoose.connect(url,{
-  useMongoClient:true
-});
+const connect = mongoose.connect(url);
 
 connect.then((db)=>{
   console.log('connected to server successfully');
@@ -34,6 +32,16 @@ connect.then((db)=>{
 (err)=> {console.log(err)});
 
 var app = express();
+//middle ware to redirect the requests comming to http to -> https
+//307 is a status code for redirected url and the method should not change
+app.all('*',(req,res,next)=>{
+  if(req.secure){
+    return next();
+  }
+  else{
+    res.redirect(307,'https://'+req.hostname+':'+app.get('secPort')+req.url);
+  }
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
